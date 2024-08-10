@@ -14,7 +14,7 @@ def factorial(n):
 
 def comb(row, col):
     """returns the combination of the numbers"""
-    return int(factorial(row) / (factorial(row - col) * factorial(col)))
+    return factorial(row) // (factorial(row - col) * factorial(col))
 
 
 def pascal_triangle(n):
@@ -24,7 +24,7 @@ def pascal_triangle(n):
     if n == 1, i return a list with an element of 1 cos in the
     pascal triangle, there is only 1 in the first row"""
     if n <= 0:
-        return[[]]
+        return [[]]
 
     pascal_triangle_list = []
     for row in range(n):
