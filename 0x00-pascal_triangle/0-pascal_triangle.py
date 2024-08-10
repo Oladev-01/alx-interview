@@ -9,7 +9,7 @@ def factorial(n):
     """returns the factorial of a number"""
     if n == 0 or n == 1:
         return 1
-    return int(n * factorial(n - 1))
+    return n * factorial(n - 1)
 
 
 def comb(row, col):
