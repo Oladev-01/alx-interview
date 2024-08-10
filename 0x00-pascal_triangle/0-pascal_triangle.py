@@ -1,14 +1,24 @@
 #!/usr/bin/python3
-from math import comb
-
-"""this module creates a list of
+""" this module creates a list of
 integers representing pascal triangle
-where the number of rows is parsed to the defined function"""
+where the number of rows is parsed to the defined function
+"""
+
+
+def factorial(n):
+    """returns the factorial of a number"""
+    if n == 0 or n == 1:
+        return 1
+    return int(n * factorial(n - 1))
+
+
+def comb(row, col):
+    return int(factorial(row) / (factorial(row - col) * factorial(col)))
 
 
 def pascal_triangle(n):
-    """this function returns list of pascal triangle"""
-    """ first of all if n <= 0: i return an empty list cos
+    """this function returns list of pascal triangle
+    first of all if n <= 0: i return an empty list cos
     there row in pascal triangle begins from 0
     if n == 1, i return a list with an element of 1 cos in the
     pascal triangle, there is only 1 in the first row"""
