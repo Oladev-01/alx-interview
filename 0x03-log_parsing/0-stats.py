@@ -25,7 +25,7 @@ if __name__ == '__main__':
             if get_status_code[code] > 0:
                 print(f"{code}: {get_status_code[code]}")
 
-    def quit_ops(sig, frame):
+    def quit_ops():
         """handle signal interruption"""
         print_stats()
         sys.exit(0)
