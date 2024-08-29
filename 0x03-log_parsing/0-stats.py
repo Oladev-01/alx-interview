@@ -5,24 +5,22 @@ import sys
 import signal
 
 
-def print_stats():
-    """printing the status codes and total file size"""
-    print(f"Total file size: {total_file_size}")
-    for code in sorted(get_status_code.keys()):
-        if get_status_code[code] > 0:
-            print(f"{code}: {get_status_code[code]}")
-
-
-def quit_ops(sig, frame):
-    """handle signal interruption"""
-    print_stats()
-    sys.exit(0)
-
-
-signal.signal(signal.SIGINT, quit_ops)
-
-
 if __name__ == '__main__':
+
+    def print_stats():
+        """printing the status codes and total file size"""
+        print(f"Total file size: {total_file_size}")
+        for code in sorted(get_status_code.keys()):
+            if get_status_code[code] > 0:
+                print(f"{code}: {get_status_code[code]}")
+
+    def quit_ops(sig, frame):
+        """handle signal interruption"""
+        print_stats()
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, quit_ops)
+
     total_file_size = 0
     line_count = 0
     get_status_code = {
