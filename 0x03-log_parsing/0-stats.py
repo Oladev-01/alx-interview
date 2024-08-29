@@ -49,3 +49,4 @@ if __name__ == '__main__':
             total_file_size += file_size
             if line_count % 10 == 0:
                 print_stats()
+    print_stats()
