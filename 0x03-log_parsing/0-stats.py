@@ -5,6 +5,23 @@ import sys
 import signal
 
 
+def print_stats():
+    """printing the status codes and total file size"""
+    print(f"Total file size: {total_file_size}")
+    for code in sorted(get_status_code.keys()):
+        if get_status_code[code] > 0:
+            print(f"{code}: {get_status_code[code]}")
+
+
+def quit_ops(sig, frame):
+    """handle signal interruption"""
+    print_stats()
+    sys.exit(0)
+
+
+signal.signal(signal.SIGINT, quit_ops)
+
+
 if __name__ == '__main__':
     total_file_size = 0
     line_count = 0
@@ -19,22 +36,8 @@ if __name__ == '__main__':
         500: 0,
     }
 
-    def print_stats():
-        """printing the status codes"""
-        print(f"File size: {total_file_size}")
-        for code in sorted(get_status_code.keys()):
-            if get_status_code[code] > 0:
-                print(f"{code}: {get_status_code[code]}")
-
-    def quit_ops(sig, frame):
-        """handle signal interuption"""
-        print_stats()
-        sys.exit(0)
-
-    signal.signal(signal.SIGINT, quit_ops)
-
-    with open(sys.stdin.fileno(), 'r') as f:
-        for line in f:
+    try:
+        for line in sys.stdin:
             line_count += 1
             sp_log = line.split()
             if len(sp_log) < 7:
@@ -49,4 +52,10 @@ if __name__ == '__main__':
             total_file_size += file_size
             if line_count % 10 == 0:
                 print_stats()
+
+    except KeyboardInterrupt:
+        # Print traceback information on keyboard interrupt
+        print_stats()
+        raise  # Re-raise the exception to print the traceback
+
     print_stats()
