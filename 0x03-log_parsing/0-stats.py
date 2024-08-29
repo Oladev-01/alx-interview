@@ -1,59 +1,58 @@
-#!/usr/bin/python3
-"""processing logs"""
-
+#!/usr/bin/env python3
 import sys
 import signal
 
+total_file_size = 0
+status_code_count = {
+    200: 0,
+    301: 0,
+    400: 0,
+    401: 0,
+    403: 0,
+    404: 0,
+    405: 0,
+    500: 0
+}
 
-if __name__ == '__main__':
+def print_statistics():
+    """Prints the current statistics."""
+    print(f"Total file size: {total_file_size}")
+    for code in sorted(status_code_count.keys()):
+        if status_code_count[code] > 0:
+            print(f"{code}: {status_code_count[code]}")
 
-    def print_stats():
-        """printing the status codes and total file size"""
-        print(f"Total file size: {total_file_size}")
-        for code in sorted(get_status_code.keys()):
-            if get_status_code[code] > 0:
-                print(f"{code}: {get_status_code[code]}")
+def signal_handler(sig, frame):
+    """Handles the keyboard interruption (CTRL + C)"""
+    print_statistics()
+    sys.exit(0)
 
-    def quit_ops(sig, frame):
-        """handle signal interruption"""
-        print_stats()
-        sys.exit(0)
+signal.signal(signal.SIGINT, signal_handler)
 
-    signal.signal(signal.SIGINT, quit_ops)
-
-    total_file_size = 0
+try:
     line_count = 0
-    get_status_code = {
-        200: 0,
-        301: 0,
-        400: 0,
-        401: 0,
-        403: 0,
-        404: 0,
-        405: 0,
-        500: 0,
-    }
+    for line in sys.stdin:
+        line_count += 1
+        parts = line.split()
+        if len(parts) < 7:
+            continue
+        
+        try:
+            ip = parts[0]
+            date = parts[3][1:]
+            status_code = int(parts[-2])
+            file_size = int(parts[-1])
+        except (ValueError, IndexError):
+            continue
 
-    try:
-        for line in sys.stdin:
-            line_count += 1
-            sp_log = line.split()
-            if len(sp_log) < 7:
-                continue
-            try:
-                status_code = int(sp_log[-2])
-                file_size = int(sp_log[-1])
-            except (ValueError, IndexError):
-                continue
-            if status_code in get_status_code:
-                get_status_code[status_code] += 1
-            total_file_size += file_size
-            if line_count % 10 == 0:
-                print_stats()
+        if status_code in status_code_count:
+            status_code_count[status_code] += 1
+        total_file_size += file_size
 
-    except KeyboardInterrupt:
-        # Print traceback information on keyboard interrupt
-        print_stats()
-        raise  # Re-raise the exception to print the traceback
+        if line_count % 10 == 0:
+            print_statistics()
 
-    print_stats()
+except Exception as e:
+    sys.stderr.write(f"Error: {e}\n")
+
+finally:
+    print_statistics()
