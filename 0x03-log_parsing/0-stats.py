@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""log parsing"""
 import sys
 import signal
 
@@ -53,6 +54,3 @@ try:
 
 except Exception as e:
     sys.stderr.write(f"Error: {e}\n")
-
-finally:
-    print_statistics()
