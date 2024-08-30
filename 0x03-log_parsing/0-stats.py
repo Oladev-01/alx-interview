@@ -1,14 +1,21 @@
 #!/usr/bin/python3
-"""processing logs"""
-
+"""log parsing"""
+from signal import signal, SIGINT
+import re
 import sys
-import signal
-
 
 if __name__ == '__main__':
-    total_file_size = 0
+    log_pattern = re.compile(
+        r"^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - "
+        r"\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{6})\] "
+        r"\"(GET|POST|PUT|DELETE|PATCH) (/[\w/]+) HTTP/1\.1\" "
+        r"(\d{3}) "
+        r"(\d+)$"
+    )
+
     line_count = 0
-    get_status_code = {
+    file_size = 0
+    stats_code = {
         200: 0,
         301: 0,
         400: 0,
@@ -19,33 +26,29 @@ if __name__ == '__main__':
         500: 0,
     }
 
-    def print_stats():
-        """printing the status codes"""
-        print(f"File size: {total_file_size}")
-        for code in sorted(get_status_code.keys()):
-            if get_status_code[code] > 0:
-                print(f"{code}: {get_status_code[code]}")
+    def print_logs():
+        """print log to output"""
+        print(f'File size: {file_size}')
+        for code in stats_code:
+            if stats_code[code] > 0:
+                print(f"{code}: {stats_code[code]}")
 
-    def quit_ops(sig, frame):
-        """handle signal interuption"""
-        sys.exit(0)
-
-    signal.signal(signal.SIGINT, quit_ops)
+    def handle_interupt(signal, frame):
+        """handle ctrl c"""
+        print_logs()
+        return
+    signal(SIGINT, handle_interupt)
 
     with open(sys.stdin.fileno(), 'r') as f:
         for line in f:
+            if not line:
+                continue
+            if not log_pattern.match(line):
+                continue
+            parts = line.split()
+            file_size += int(parts[-1])
             line_count += 1
-            sp_log = line.split()
-            if len(sp_log) < 7:
-                continue
-            try:
-                status_code = int(sp_log[-2])
-                file_size = int(sp_log[-1])
-            except (ValueError, IndexError):
-                continue
-            if status_code in get_status_code:
-                get_status_code[status_code] += 1
-            total_file_size += file_size
+            status_code = int(parts[-2])
+            stats_code[status_code] += 1
             if line_count % 10 == 0:
-                print_stats()
-    print_stats()
+                print_logs()
