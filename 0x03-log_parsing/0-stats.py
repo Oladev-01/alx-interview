@@ -41,14 +41,18 @@ if __name__ == '__main__':
 
     with open(sys.stdin.fileno(), 'r') as f:
         for line in f:
-            if not line:
+            line_count += 1
+            parts = line.split()
+            if not line or len(parts) < 7:
                 continue
             if not log_pattern.match(line):
                 continue
-            parts = line.split()
-            file_size += int(parts[-1])
-            line_count += 1
-            status_code = int(parts[-2])
-            stats_code[status_code] += 1
+            try:
+                file_size += int(parts[-1])
+                status_code = int(parts[-2])
+            except ValueError:
+                continue
+            if status_code in stats_code:
+                stats_code[status_code] += 1
             if line_count % 10 == 0:
                 print_logs()
