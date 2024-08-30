@@ -36,17 +36,17 @@ if __name__ == '__main__':
     with open(sys.stdin.fileno(), 'r') as f:
         for line in f:
             line_count += 1
-            sp_log = line.split()
-            if len(sp_log) < 7:
-                continue
             try:
-                status_code = int(sp_log[-2])
+                sp_log = line.split()
                 file_size = int(sp_log[-1])
+                total_file_size += file_size
+                status_code = int(sp_log[-2])
+                if len(sp_log) < 7:
+                    continue
             except (ValueError, IndexError):
                 continue
             if status_code in get_status_code:
                 get_status_code[status_code] += 1
-            total_file_size += file_size
             if line_count % 10 == 0:
                 print_stats()
     print_stats()
