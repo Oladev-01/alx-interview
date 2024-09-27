@@ -14,22 +14,22 @@ if (isNaN(film_id)) {
 const filmUrl = `https://swapi.dev/api/films/${film_id}`;
 
 function getCharacters() {
-    request(filmUrl, (error, response, body) => {
+    request(filmUrl, (error, response,body) => {
         if (error || response.statusCode !== 200) {
-            console.error("Failed to fetch data from star war endpoint");
+            console.error("Failed to fetch from starwar api");
             return;
         }
-        const getResponse = JSON.parse(body);
-        const getAllCharacters = getResponse.characters;
-        const resolveCharacters = getAllCharacters.map(character => {
+        getResponse = JSON.parse(body);
+        getAllCharacters = getResponse.characters;
+        const resolveCharacters = getAllCharacters.map(characters => {
             return new Promise((resolve, reject) => {
-                request(character, (error, response, body) => {
+                request(characters, (error, response, body) => {
                     if (error || response.statusCode !== 200) {
-                        console.error("Failed to fectch from character");
+                        console.error("Failed to fetch from characters");
                         return;
                     }
                     const getCharacterjson = JSON.parse(body);
-                    resolve(getCharacterjson.name);
+                    resolve (getCharacterjson.name);
                 });
             });
         });
@@ -39,7 +39,7 @@ function getCharacters() {
             })).catch(error => {
                 console.error(error);
             });
-    }); 
+    });
 }
 
 getCharacters();
