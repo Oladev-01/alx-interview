@@ -2,6 +2,17 @@
 """implementing game theory to determine the winner of a game"""
 
 
+def sieve_erastosthenes(max_n):
+    """sieve out the prime numbers"""
+    sieve = [True] * (max_n + 1)
+    sieve[0] = sieve[1] = False
+    for start in range(2, int(max_n ** 0.5) + 1):
+        if sieve[start]:
+            for multiple in range(start * start, max_n + 1, start):
+                sieve[multiple] = False
+    return sieve
+
+
 def isWinner(x: int, nums: list) -> str:
     """this function determines the winner of the most of the rounds x
         from the game of array nums. The array consist of integers
@@ -14,42 +25,24 @@ def isWinner(x: int, nums: list) -> str:
     if x == 0 or not nums or x != len(nums):
         return None
 
-    player_1 = {'name': 'Maria', 'move': True}
-    player_2 = {"name": 'Ben', "move": True}
-    prime = [2, 3, 5, 7, 11, 13]
-    winner = []
-    for rounds in range(x):
-        if nums[rounds] == 1:
-            winner.append(player_2['name'])
+    max_n = max(nums)
+    # get the sieve of prime numbers from the integers
+    sieve = sieve_erastosthenes(max_n)
+    player_1 = player_2 = 0
+    # get the prime for each n
+    prime_count = [0] * (max_n + 1)
+    for i in range(1, max_n + 1):
+        prime_count[i] = prime_count[i - 1] + (1 if sieve[i] else 0)
+
+    for n in nums:
+        prime_count_for_n = prime_count[n]
+        if prime_count_for_n % 2 == 0:
+            player_2 += 1
         else:
-            board = list(range(1, nums[rounds] + 1))
-            for_prime = 0
-            turn = True
-            while turn:
-                smallest_prime = prime[for_prime]
-                if player_1['move']:
-                    for index, get_prime in enumerate(board):
-                        if board and get_prime % smallest_prime == 0:
-                            board.pop(index)
-                    if not board or not any(i in board for i in prime):
-                        winner.append(player_1['name'])
-                        turn = False
-                    else:
-                        player_1['move'] = False
-                        player_2['move'] = True
-                else:
-                    for idx, get_prime in enumerate(board):
-                        if board and get_prime % smallest_prime == 0:
-                            board.pop(idx)
-                    if not board or not any(i in board for i in prime):
-                        winner.append(player_2['name'])
-                        turn = False
-                    else:
-                        player_2['move'] = False
-                        player_1['move'] = True
-                for_prime += 1
-    if winner:
-        if winner.count('Maria') == winner.count('Ben'):
-            return None
-        return 'Maria' if winner.count('Maria') > winner.count('Ben') else 'Ben'  # noqa
-    return None
+            player_1 += 1
+    if player_1 > player_2:
+        return 'Maria'
+    elif player_2 > player_1:
+        return 'Ben'
+    else:
+        return None
